@@ -9,6 +9,38 @@ This starter React project has been generated using AlgoKit. See below for defau
 Set `VITE_EXPENSE_POOL_APP_ID` in your `.env` file to the deployed `ExpensePoolContract` App ID (for example, `1003`).
 The demo modal in the UI will use this value as the default and lets you change it at runtime.
 
+## Deploy On Vercel (TestNet)
+
+Use this flow to host the frontend as a public URL while pointing to the deployed TestNet app.
+
+1. Push your latest changes to GitHub.
+2. In Vercel, click `Add New...` -> `Project` and import this repository.
+3. Set project settings:
+   - Root Directory: `projects/Hackseries-Expense-Splitter-frontend`
+   - Framework Preset: `Vite`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+4. Add these environment variables in Vercel (`Production`, and optionally `Preview`):
+
+```env
+VITE_ENVIRONMENT=production
+VITE_ALGOD_TOKEN=
+VITE_ALGOD_SERVER=https://testnet-api.algonode.cloud
+VITE_ALGOD_PORT=
+VITE_ALGOD_NETWORK=testnet
+VITE_INDEXER_TOKEN=
+VITE_INDEXER_SERVER=https://testnet-idx.algonode.cloud
+VITE_INDEXER_PORT=
+VITE_EXPENSE_POOL_APP_ID=758861618
+```
+
+5. Deploy and open the generated Vercel URL.
+6. Connect a TestNet wallet (Pera/Defly/Exodus) and verify group info / app calls in the UI.
+
+Notes:
+- Keep `.env*` files local; they are ignored by git in this repo.
+- If you redeploy the contract and app ID changes, only `VITE_EXPENSE_POOL_APP_ID` needs to be updated in Vercel.
+
 ### Initial Setup
 
 #### 1. Clone the Repository

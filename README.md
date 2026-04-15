@@ -43,3 +43,11 @@ The frontend starter also provides an example of interactions with your Contract
 ## Next Steps
 
 You can take this project and customize it to build your own decentralized applications on Algorand. Make sure to understand how to use AlgoKit and how to write smart contracts for Algorand before you start.
+
+## Frontend Hosting
+
+To publish the frontend on Vercel, follow the deployment instructions in [projects/Hackseries-Expense-Splitter-frontend/README.md](projects/Hackseries-Expense-Splitter-frontend/README.md).
+
+Quick pointer:
+- Vercel Root Directory should be set to `projects/Hackseries-Expense-Splitter-frontend`
+- Set TestNet frontend environment variables in Vercel, including `VITE_EXPENSE_POOL_APP_ID`
