@@ -62,8 +62,12 @@ Run the following commands within the project folder:
 #### Terminal
 Directly manage and interact with your project using AlgoKit commands:
 
-1. **Build Contracts**: `algokit project run build` builds react web app and links with smart contracts in workspace, if any.
-2. Remaining set of command for linting, testing and deployment can be found in respective [package.json](./package.json) file and [.algokit.toml](./.algokit.toml) files.
+1. **Run locally**: `npm run dev`
+2. **Build for deployment (Vercel compatible)**: `npm run build`
+3. **Regenerate typed clients before run/build (optional, local only)**:
+   - `npm run dev:with-clients`
+   - `npm run build:with-clients`
+4. Remaining commands for linting, testing, and deployment are in [package.json](./package.json) and [.algokit.toml](./.algokit.toml).
 
 #### VS Code
 For a seamless experience with breakpoint debugging and other features:
