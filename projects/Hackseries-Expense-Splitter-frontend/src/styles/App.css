@@ -10,8 +10,8 @@ body.modal-open {
 
 .hero {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #38b2ac 0%, #2c9a9a 100%);
   padding: 2rem;
@@ -23,7 +23,7 @@ body.modal-open {
   text-align: center;
   border-radius: 0.5rem;
   padding: 2rem;
-  width: 300px;
+  width: min(100%, 460px);
   flex-shrink: 0;
   background-color: #ffffff;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -36,6 +36,11 @@ body.modal-open {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  align-items: center;
+}
+
+.hero-content button {
+  max-width: 320px;
 }
 
 .text-4xl {
