@@ -286,131 +286,146 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
         <h3 className="font-bold text-lg">Expense Pool Demo</h3>
         <p className="helper-text">Connect wallet, set your deployed App ID, then interact with the contract.</p>
 
-        <div className="field-row">
-          <label className="field-label" htmlFor="app-id-input">
-            App ID
-          </label>
-          <input
-            id="app-id-input"
-            type="number"
-            min="1"
-            placeholder="e.g. 1003"
-            className="input input-bordered w-full"
-            value={appIdInput}
-            onChange={(e) => setAppIdInput(e.target.value)}
-          />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', minHeight: '500px' }}>
+          {/* Left Column: Inputs and Controls */}
+          <div style={{ overflowY: 'auto', paddingRight: '0.5rem' }}>
+            <div className="field-row">
+              <label className="field-label" htmlFor="app-id-input">
+                App ID
+              </label>
+              <input
+                id="app-id-input"
+                type="number"
+                min="1"
+                placeholder="e.g. 1003"
+                className="input input-bordered w-full"
+                value={appIdInput}
+                onChange={(e) => setAppIdInput(e.target.value)}
+              />
+            </div>
+
+            <div className="button-grid" style={{ marginBottom: '1rem' }}>
+              <button type="button" className="btn" onClick={loadGroupInfo}>
+                Refresh Group Info
+              </button>
+              <button type="button" className="btn" onClick={loadExpenseInfo}>
+                Fetch Expense By ID
+              </button>
+              <button type="button" className="btn" onClick={checkContractPoolBalance}>
+                Check Pool Balance
+              </button>
+            </div>
+
+            <div className="divider"></div>
+
+            <div className="field-row">
+              <label className="field-label" htmlFor="member-addresses-input">
+                Register Members
+              </label>
+              <textarea
+                id="member-addresses-input"
+                className="input input-bordered w-full"
+                rows={3}
+                placeholder="ADDR_1, ADDR_2, ADDR_3"
+                value={memberAddressesInput}
+                onChange={(e) => setMemberAddressesInput(e.target.value)}
+              />
+              <button type="button" className="btn w-full" onClick={registerMembers}>
+                Register Members
+              </button>
+              <p className="helper-text">
+                This action is creator-only and can be called multiple times to add more members.
+              </p>
+            </div>
+
+            <div className="divider"></div>
+
+            <div className="field-row">
+              <label className="field-label" htmlFor="expense-id-input">
+                Expense ID
+              </label>
+              <input
+                id="expense-id-input"
+                type="number"
+                min="1"
+                className="input input-bordered w-full"
+                value={expenseIdInput}
+                onChange={(e) => setExpenseIdInput(e.target.value)}
+              />
+            </div>
+
+            <div className="field-row">
+              <label className="field-label" htmlFor="deposit-input">
+                Deposit (ALGO)
+              </label>
+              <input
+                id="deposit-input"
+                type="number"
+                min="0"
+                step="0.001"
+                className="input input-bordered w-full"
+                value={depositAmount}
+                onChange={(e) => setDepositAmount(e.target.value)}
+              />
+              <button type="button" className="btn w-full" onClick={depositToPool}>
+                Deposit To Pool
+              </button>
+            </div>
+
+            <div className="divider"></div>
+
+            <div className="field-row">
+              <label className="field-label" htmlFor="expense-amount-input">
+                Expense Amount (ALGO)
+              </label>
+              <input
+                id="expense-amount-input"
+                type="number"
+                min="0"
+                step="0.001"
+                className="input input-bordered w-full"
+                value={expenseAmount}
+                onChange={(e) => setExpenseAmount(e.target.value)}
+              />
+            </div>
+
+            <div className="field-row">
+              <label className="field-label" htmlFor="expense-description-input">
+                Expense Description
+              </label>
+              <input
+                id="expense-description-input"
+                type="text"
+                className="input input-bordered w-full"
+                value={expenseDescription}
+                onChange={(e) => setExpenseDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="button-grid">
+              <button type="button" className="btn" onClick={addExpense}>
+                Add Expense
+              </button>
+              <button type="button" className="btn" onClick={approveExpense}>
+                Approve Expense
+              </button>
+              <button type="button" className="btn btn-warning" onClick={settleExpense}>
+                Settle Expense
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: Info Display */}
+          <div style={{ overflowY: 'auto', paddingLeft: '0.5rem', borderLeft: '1px solid #e2e8f0' }}>
+            <div style={{ fontWeight: 600, marginBottom: '1rem', color: '#1a202c' }}>State Information</div>
+            <div className="info-panel">{groupInfo}</div>
+            <div className="info-panel">{expenseInfo}</div>
+            <div className="info-panel">{splitPreview}</div>
+            <div className="info-panel">{poolAccountInfo}</div>
+          </div>
         </div>
 
-        <div className="button-grid">
-          <button type="button" className="btn" onClick={loadGroupInfo}>
-            Refresh Group Info
-          </button>
-          <button type="button" className="btn" onClick={loadExpenseInfo}>
-            Fetch Expense By ID
-          </button>
-          <button type="button" className="btn" onClick={checkContractPoolBalance}>
-            Check Contract Pool Balance
-          </button>
-        </div>
-
-        <div className="field-row">
-          <label className="field-label" htmlFor="member-addresses-input">
-            Register Members (comma or newline separated wallet addresses)
-          </label>
-          <textarea
-            id="member-addresses-input"
-            className="input input-bordered w-full"
-            rows={3}
-            placeholder="ADDR_1, ADDR_2, ADDR_3"
-            value={memberAddressesInput}
-            onChange={(e) => setMemberAddressesInput(e.target.value)}
-          />
-          <button type="button" className="btn" onClick={registerMembers}>
-            Register Members
-          </button>
-          <p className="helper-text">
-            This action is creator-only and can be called multiple times to add more members.
-          </p>
-        </div>
-
-        <div className="field-row">
-          <label className="field-label" htmlFor="expense-id-input">
-            Expense ID
-          </label>
-          <input
-            id="expense-id-input"
-            type="number"
-            min="1"
-            className="input input-bordered w-full"
-            value={expenseIdInput}
-            onChange={(e) => setExpenseIdInput(e.target.value)}
-          />
-        </div>
-
-        <div className="field-row">
-          <label className="field-label" htmlFor="deposit-input">
-            Deposit (ALGO)
-          </label>
-          <input
-            id="deposit-input"
-            type="number"
-            min="0"
-            step="0.001"
-            className="input input-bordered w-full"
-            value={depositAmount}
-            onChange={(e) => setDepositAmount(e.target.value)}
-          />
-          <button type="button" className="btn" onClick={depositToPool}>
-            Deposit To Pool
-          </button>
-        </div>
-
-        <div className="field-row">
-          <label className="field-label" htmlFor="expense-amount-input">
-            Expense Amount (ALGO)
-          </label>
-          <input
-            id="expense-amount-input"
-            type="number"
-            min="0"
-            step="0.001"
-            className="input input-bordered w-full"
-            value={expenseAmount}
-            onChange={(e) => setExpenseAmount(e.target.value)}
-          />
-        </div>
-
-        <div className="field-row">
-          <label className="field-label" htmlFor="expense-description-input">
-            Expense Description
-          </label>
-          <input
-            id="expense-description-input"
-            type="text"
-            className="input input-bordered w-full"
-            value={expenseDescription}
-            onChange={(e) => setExpenseDescription(e.target.value)}
-          />
-        </div>
-
-        <div className="button-grid">
-          <button type="button" className="btn" onClick={addExpense}>
-            Add Expense
-          </button>
-          <button type="button" className="btn" onClick={approveExpense}>
-            Approve Expense
-          </button>
-          <button type="button" className="btn btn-warning" onClick={settleExpense}>
-            Settle Expense
-          </button>
-        </div>
-
-        <div className="info-panel">{groupInfo}</div>
-        <div className="info-panel">{expenseInfo}</div>
-        <div className="info-panel">{splitPreview}</div>
-        <div className="info-panel">{poolAccountInfo}</div>
-
-        <div className="modal-action ">
+        <div className="modal-action" style={{ marginTop: '1rem', justifyContent: 'space-between' }}>
           <button type="button" className="btn" onClick={() => setModalState(!openModal)}>
             Close
           </button>

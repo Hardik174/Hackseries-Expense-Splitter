@@ -26,37 +26,40 @@ const Home: React.FC<HomeProps> = () => {
   }
 
   return (
-    <div className="hero min-h-screen bg-teal-400">
-      <div className="hero-content text-center rounded-lg p-6 max-w-md bg-white mx-auto">
-        <div className="max-w-md">
-          <h1 className="text-4xl">
-            Hackseries <div className="font-bold">Expense Splitter</div>
+    <div className="hero">
+      <div className="hero-content">
+        <div>
+          <h1 className="text-4xl font-bold">
+            Hackseries
           </h1>
-          <p className="py-6">Connect a wallet and run the deployed Expense Pool contract workflow (deposit, add, approve, settle, and read state).</p>
+          <h2 className="text-2xl font-bold text-teal-600">
+            Expense Splitter
+          </h2>
+          <p className="text-sm py-4 text-gray-600">
+            Connect wallet & interact with the Expense Pool contract
+          </p>
 
-          <div className="grid">
-            <button data-test-id="connect-wallet" className="btn m-2" onClick={toggleWalletModal}>
-              Wallet Connection
-            </button>
+          <button data-test-id="connect-wallet" className="btn btn-primary w-full" onClick={toggleWalletModal}>
+            {activeAddress ? '✓ Wallet Connected' : 'Connect Wallet'}
+          </button>
 
-            {activeAddress && (
-              <button data-test-id="transactions-demo" className="btn m-2" onClick={toggleDemoModal}>
+          {activeAddress && (
+            <>
+              <button data-test-id="transactions-demo" className="btn w-full" onClick={toggleDemoModal}>
                 Send ALGO Demo
               </button>
-            )}
 
-            {activeAddress && (
-              <button data-test-id="appcalls-demo" className="btn m-2" onClick={toggleAppCallsModal}>
-                Expense Pool Contract Demo
+              <button data-test-id="appcalls-demo" className="btn btn-primary w-full" onClick={toggleAppCallsModal}>
+                Contract Demo
               </button>
-            )}
-          </div>
-
-          <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
-          <Transact openModal={openDemoModal} setModalState={setOpenDemoModal} />
-          <AppCalls openModal={appCallsDemoModal} setModalState={setAppCallsDemoModal} />
+            </>
+          )}
         </div>
       </div>
+
+      <ConnectWallet openModal={openWalletModal} closeModal={toggleWalletModal} />
+      <Transact openModal={openDemoModal} setModalState={setOpenDemoModal} />
+      <AppCalls openModal={appCallsDemoModal} setModalState={setAppCallsDemoModal} />
     </div>
   )
 }
