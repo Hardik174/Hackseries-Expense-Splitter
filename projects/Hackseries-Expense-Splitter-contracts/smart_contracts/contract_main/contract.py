@@ -69,7 +69,7 @@ class ExpensePoolContract(ARC4Contract):
         assert approval_threshold > 0, "threshold must be positive"
         assert approval_threshold <= unique_members, "threshold too high"
 
-        self.member_count.value = unique_members
+        self.member_count.value = UInt64(0)
         self.members_initialized.value = UInt64(0)
         self.approval_threshold.value = approval_threshold
         self.pool_balance.value = UInt64(0)
@@ -79,13 +79,13 @@ class ExpensePoolContract(ARC4Contract):
     def register_members(self, member_addresses: arc4.DynamicArray[arc4.Address]) -> None:
         self._assert_group_initialized()
         assert Txn.sender == self.creator.value, "only creator can register members"
-        assert self.members_initialized.value == UInt64(0), "members already initialized"
-        assert member_addresses.length == self.member_count.value, "member count mismatch"
+        assert member_addresses.length > 0, "members required"
 
         for member in member_addresses:
             member_account = member.native
             assert member_account not in self.members, "duplicate member"
             self.members[member_account] = UInt64(1)
+            self.member_count.value += UInt64(1)
 
         self.members_initialized.value = UInt64(1)
 

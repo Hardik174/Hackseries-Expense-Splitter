@@ -329,7 +329,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
             Register Members
           </button>
           <p className="helper-text">
-            This action is creator-only and one-time for the current contract design.
+            This action is creator-only and can be called multiple times to add more members.
           </p>
         </div>
 
