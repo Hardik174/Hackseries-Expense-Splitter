@@ -13,12 +13,15 @@ interface AppCallsInterface {
 const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
   const [loading, setLoading] = useState<boolean>(false)
   const [appIdInput, setAppIdInput] = useState<string>(import.meta.env.VITE_EXPENSE_POOL_APP_ID ?? '')
+  const [memberAddressesInput, setMemberAddressesInput] = useState<string>('')
   const [depositAmount, setDepositAmount] = useState<string>('1')
   const [expenseAmount, setExpenseAmount] = useState<string>('0.2')
   const [expenseDescription, setExpenseDescription] = useState<string>('Dinner split')
   const [expenseIdInput, setExpenseIdInput] = useState<string>('1')
   const [groupInfo, setGroupInfo] = useState<string>('No group info loaded yet.')
   const [expenseInfo, setExpenseInfo] = useState<string>('No expense info loaded yet.')
+  const [poolAccountInfo, setPoolAccountInfo] = useState<string>('No pool account balance loaded yet.')
+  const [splitPreview, setSplitPreview] = useState<string>('No split preview yet.')
 
   const { enqueueSnackbar } = useSnackbar()
   const { transactionSigner, activeAddress } = useWallet()
@@ -51,6 +54,9 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
     setLoading(true)
     try {
       await action()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      enqueueSnackbar(message, { variant: 'error' })
     } finally {
       setLoading(false)
     }
@@ -69,6 +75,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
   }
 
   const loadGroupInfo = async () => {
+    let loaded: [string, bigint, bigint, bigint, bigint] | undefined
     await withLoader(async () => {
       if (!appClient) {
         enqueueSnackbar('Set a valid App ID first.', { variant: 'warning' })
@@ -82,11 +89,13 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
       }
 
       const [name, memberCount, threshold, poolBalance, expenseCount] = result.return
+      loaded = [name, memberCount, threshold, poolBalance, expenseCount]
       setGroupInfo(
         `Group: ${name} | Members: ${memberCount.toString()} | Threshold: ${threshold.toString()} | Pool: ${poolBalance.toString()} uALGO | Expenses: ${expenseCount.toString()}`,
       )
       enqueueSnackbar('Group info loaded.', { variant: 'success' })
     })
+    return loaded
   }
 
   const loadExpenseInfo = async () => {
@@ -108,6 +117,49 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
         `Expense ${expenseId.toString()}: payer=${payer}, amount=${amount.toString()} uALGO, approvals=${approvalCount.toString()}, settled=${String(settled)}, description="${description}"`,
       )
       enqueueSnackbar('Expense info loaded.', { variant: 'success' })
+    })
+  }
+
+  const checkContractPoolBalance = async () => {
+    await withLoader(async () => {
+      if (!assertReady() || !appClient) {
+        return
+      }
+
+      const accountInfo = await algorand.client.algod.accountInformation(appClient.appAddress).do()
+      const total = Number(accountInfo.amount)
+      const minBalance = Number(accountInfo.minBalance)
+      const spendable = Math.max(0, total - minBalance)
+
+      setPoolAccountInfo(
+        `Contract account: ${appClient.appAddress} | Total: ${(total / 1_000_000).toFixed(6)} ALGO (${total} uALGO) | Min balance: ${(minBalance / 1_000_000).toFixed(6)} ALGO | Spendable: ${(spendable / 1_000_000).toFixed(6)} ALGO`,
+      )
+      enqueueSnackbar('Contract pool account balance loaded.', { variant: 'success' })
+    })
+  }
+
+  const registerMembers = async () => {
+    await withLoader(async () => {
+      if (!assertReady() || !appClient) {
+        return
+      }
+
+      const memberAddresses = memberAddressesInput
+        .split(/[\n,]/)
+        .map((a) => a.trim())
+        .filter((a) => a.length > 0)
+
+      if (memberAddresses.length === 0) {
+        enqueueSnackbar('Enter at least one wallet address.', { variant: 'warning' })
+        return
+      }
+
+      await appClient.send.registerMembers({
+        args: { memberAddresses },
+      })
+
+      enqueueSnackbar('Members registered successfully.', { variant: 'success' })
+      await loadGroupInfo()
     })
   }
 
@@ -151,14 +203,49 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
         return
       }
 
+      const group = await appClient.send.getGroupInfo({ args: [] })
+      if (!group.return) {
+        enqueueSnackbar('Unable to load group info for split calculation.', { variant: 'error' })
+        return
+      }
+
+      const [, memberCountRaw] = group.return
+      const memberCount = Number(memberCountRaw)
+      if (!Number.isFinite(memberCount) || memberCount <= 0) {
+        enqueueSnackbar('Invalid member count in group.', { variant: 'error' })
+        return
+      }
+
+      // Split by member count: payer is reimbursed by all members except self.
+      const perMemberShare = amount / memberCount
+      const reimbursableAmount = memberCount > 1 ? amount - perMemberShare : amount
+      const reimbursableMicroAlgos = algo(reimbursableAmount).microAlgos
+
+      setSplitPreview(
+        `Split preview: total ${amount.toFixed(6)} ALGO across ${memberCount} members => share ${perMemberShare.toFixed(6)} ALGO/member, reimbursable to payer ${reimbursableAmount.toFixed(6)} ALGO`,
+      )
+
       await appClient.send.addExpense({
         args: {
-          amount: algo(amount).microAlgos,
+          amount: reimbursableMicroAlgos,
           description: expenseDescription.trim(),
         },
       })
       enqueueSnackbar('Expense added.', { variant: 'success' })
-      await loadGroupInfo()
+      const latestGroup = await loadGroupInfo()
+      if (latestGroup) {
+        const latestExpenseCount = latestGroup[4]
+        if (latestExpenseCount > 0n) {
+          setExpenseIdInput(latestExpenseCount.toString())
+          const latestExpense = await appClient.send.getExpenseInfo({ args: { expenseId: latestExpenseCount } })
+          if (latestExpense.return) {
+            const [payer, amountMicro, description, approvalCount, settled] = latestExpense.return
+            setExpenseInfo(
+              `Expense ${latestExpenseCount.toString()}: payer=${payer}, amount=${amountMicro.toString()} uALGO, approvals=${approvalCount.toString()}, settled=${String(settled)}, description="${description}"`,
+            )
+          }
+        }
+      }
     })
   }
 
@@ -171,6 +258,7 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
       const expenseId = BigInt(expenseIdInput || '0')
       await appClient.send.approveExpense({ args: { expenseId } })
       enqueueSnackbar('Expense approved.', { variant: 'success' })
+      await loadGroupInfo()
       await loadExpenseInfo()
     })
   }
@@ -220,6 +308,29 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
           <button type="button" className="btn" onClick={loadExpenseInfo}>
             Fetch Expense By ID
           </button>
+          <button type="button" className="btn" onClick={checkContractPoolBalance}>
+            Check Contract Pool Balance
+          </button>
+        </div>
+
+        <div className="field-row">
+          <label className="field-label" htmlFor="member-addresses-input">
+            Register Members (comma or newline separated wallet addresses)
+          </label>
+          <textarea
+            id="member-addresses-input"
+            className="input input-bordered w-full"
+            rows={3}
+            placeholder="ADDR_1, ADDR_2, ADDR_3"
+            value={memberAddressesInput}
+            onChange={(e) => setMemberAddressesInput(e.target.value)}
+          />
+          <button type="button" className="btn" onClick={registerMembers}>
+            Register Members
+          </button>
+          <p className="helper-text">
+            This action is creator-only and one-time for the current contract design.
+          </p>
         </div>
 
         <div className="field-row">
@@ -296,6 +407,8 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
 
         <div className="info-panel">{groupInfo}</div>
         <div className="info-panel">{expenseInfo}</div>
+        <div className="info-panel">{splitPreview}</div>
+        <div className="info-panel">{poolAccountInfo}</div>
 
         <div className="modal-action ">
           <button type="button" className="btn" onClick={() => setModalState(!openModal)}>
