@@ -4,7 +4,7 @@
 // algopy.arc4.ARC4Contract.approval_program() -> uint64:
 main:
     intcblock 0 1 8 32
-    bytecblock "creator" "pool_balance" "member_count" "expense_count" 0x657870656e73655f "members_initialized" "approval_threshold" "group_name" 0x6d656d6265725f 0x0033 0x617070726f76616c5f 0x151f7c75
+    bytecblock "creator" "pool_balance" "approval_threshold" 0x657870656e73655f "member_count" "expense_count" "members_initialized" "group_name" 0x6d656d6265725f 0x0033 0x617070726f76616c5f 0x151f7c75
     // smart_contracts/contract_main/contract.py:31
     // class ExpensePoolContract(ARC4Contract):
     txn OnCompletion
@@ -28,7 +28,7 @@ main_create_NoOp@13:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.create_group[routing]() -> void:
 create_group:
-    // smart_contracts/contract_main/contract.py:55
+    // smart_contracts/contract_main/contract.py:68
     // @abimethod(create="require")
     txna ApplicationArgs 1
     dup
@@ -61,56 +61,56 @@ create_group:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/contract_main/contract.py:62
+    // smart_contracts/contract_main/contract.py:75
     // assert member_addresses.length > 0, "members required"
     dig 1
     assert // members required
-    // smart_contracts/contract_main/contract.py:64
+    // smart_contracts/contract_main/contract.py:77
     // self.creator.value = Txn.sender
     bytec_0 // "creator"
     txn Sender
     app_global_put
-    // smart_contracts/contract_main/contract.py:65
+    // smart_contracts/contract_main/contract.py:78
     // self.group_name.value = group_name
     bytec 7 // "group_name"
     uncover 3
     app_global_put
-    // smart_contracts/contract_main/contract.py:69
+    // smart_contracts/contract_main/contract.py:82
     // assert approval_threshold > 0, "threshold must be positive"
     dup
     assert // threshold must be positive
-    // smart_contracts/contract_main/contract.py:70
+    // smart_contracts/contract_main/contract.py:83
     // assert approval_threshold <= unique_members, "threshold too high"
     dup
     uncover 2
     <=
     assert // threshold too high
-    // smart_contracts/contract_main/contract.py:72
+    // smart_contracts/contract_main/contract.py:85
     // self.member_count.value = UInt64(0)
-    bytec_2 // "member_count"
+    bytec 4 // "member_count"
     intc_0 // 0
     app_global_put
-    // smart_contracts/contract_main/contract.py:73
+    // smart_contracts/contract_main/contract.py:86
     // self.members_initialized.value = UInt64(0)
-    bytec 5 // "members_initialized"
+    bytec 6 // "members_initialized"
     intc_0 // 0
     app_global_put
-    // smart_contracts/contract_main/contract.py:74
+    // smart_contracts/contract_main/contract.py:87
     // self.approval_threshold.value = approval_threshold
-    bytec 6 // "approval_threshold"
+    bytec_2 // "approval_threshold"
     swap
     app_global_put
-    // smart_contracts/contract_main/contract.py:75
+    // smart_contracts/contract_main/contract.py:88
     // self.pool_balance.value = UInt64(0)
     bytec_1 // "pool_balance"
     intc_0 // 0
     app_global_put
-    // smart_contracts/contract_main/contract.py:76
+    // smart_contracts/contract_main/contract.py:89
     // self.expense_count.value = UInt64(0)
-    bytec_3 // "expense_count"
+    bytec 5 // "expense_count"
     intc_0 // 0
     app_global_put
-    // smart_contracts/contract_main/contract.py:55
+    // smart_contracts/contract_main/contract.py:68
     // @abimethod(create="require")
     intc_1 // 1
     return
@@ -118,7 +118,7 @@ create_group:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.register_members[routing]() -> void:
 register_members:
-    // smart_contracts/contract_main/contract.py:78
+    // smart_contracts/contract_main/contract.py:91
     // @abimethod
     txna ApplicationArgs 1
     dupn 2
@@ -143,18 +143,18 @@ register_members:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:81
+    // smart_contracts/contract_main/contract.py:94
     // assert Txn.sender == self.creator.value, "only creator can register members"
     txn Sender
     ==
     assert // only creator can register members
-    // smart_contracts/contract_main/contract.py:82
+    // smart_contracts/contract_main/contract.py:95
     // assert member_addresses.length > 0, "members required"
     assert // members required
     intc_0 // 0
 
 register_members_for_header@2:
-    // smart_contracts/contract_main/contract.py:84
+    // smart_contracts/contract_main/contract.py:97
     // for member in member_addresses:
     dup
     dig 2
@@ -169,7 +169,7 @@ register_members_for_header@2:
     *
     intc_3 // 32
     extract3 // on error: index access is out of bounds
-    // smart_contracts/contract_main/contract.py:86
+    // smart_contracts/contract_main/contract.py:99
     // assert member_account not in self.members, "duplicate member"
     bytec 8 // 0x6d656d6265725f
     swap
@@ -179,20 +179,20 @@ register_members_for_header@2:
     bury 1
     !
     assert // duplicate member
-    // smart_contracts/contract_main/contract.py:87
+    // smart_contracts/contract_main/contract.py:100
     // self.members[member_account] = UInt64(1)
     intc_1 // 1
     itob
     box_put
-    // smart_contracts/contract_main/contract.py:88
+    // smart_contracts/contract_main/contract.py:101
     // self.member_count.value += UInt64(1)
     intc_0 // 0
-    bytec_2 // "member_count"
+    bytec 4 // "member_count"
     app_global_get_ex
     assert // check self.member_count exists
     intc_1 // 1
     +
-    bytec_2 // "member_count"
+    bytec 4 // "member_count"
     swap
     app_global_put
     intc_1 // 1
@@ -201,12 +201,12 @@ register_members_for_header@2:
     b register_members_for_header@2
 
 register_members_after_for@5:
-    // smart_contracts/contract_main/contract.py:90
+    // smart_contracts/contract_main/contract.py:103
     // self.members_initialized.value = UInt64(1)
-    bytec 5 // "members_initialized"
+    bytec 6 // "members_initialized"
     intc_1 // 1
     app_global_put
-    // smart_contracts/contract_main/contract.py:78
+    // smart_contracts/contract_main/contract.py:91
     // @abimethod
     intc_1 // 1
     return
@@ -214,7 +214,7 @@ register_members_after_for@5:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.deposit_to_pool[routing]() -> void:
 deposit_to_pool:
-    // smart_contracts/contract_main/contract.py:92
+    // smart_contracts/contract_main/contract.py:105
     // @abimethod
     txn GroupIndex
     intc_1 // 1
@@ -233,53 +233,53 @@ deposit_to_pool:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:95
+    // smart_contracts/contract_main/contract.py:108
     // self._assert_member(Txn.sender)
     txn Sender
     callsub _assert_member
-    // smart_contracts/contract_main/contract.py:97
+    // smart_contracts/contract_main/contract.py:110
     // assert pay_txn.sender == Txn.sender, "payment sender mismatch"
     dup
     gtxns Sender
     txn Sender
     ==
     assert // payment sender mismatch
-    // smart_contracts/contract_main/contract.py:99
+    // smart_contracts/contract_main/contract.py:112
     // pay_txn.receiver == Global.current_application_address
     dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
-    // smart_contracts/contract_main/contract.py:98-100
+    // smart_contracts/contract_main/contract.py:111-113
     // assert (
     //     pay_txn.receiver == Global.current_application_address
     // ), "payment must go to app"
     assert // payment must go to app
-    // smart_contracts/contract_main/contract.py:101
+    // smart_contracts/contract_main/contract.py:114
     // assert pay_txn.amount > 0, "deposit must be positive"
     dup
     gtxns Amount
     dup
     assert // deposit must be positive
-    // smart_contracts/contract_main/contract.py:102
+    // smart_contracts/contract_main/contract.py:115
     // assert pay_txn.rekey_to == Global.zero_address, "rekey not allowed"
     dig 1
     gtxns RekeyTo
     global ZeroAddress
     ==
     assert // rekey not allowed
-    // smart_contracts/contract_main/contract.py:104
+    // smart_contracts/contract_main/contract.py:117
     // pay_txn.close_remainder_to == Global.zero_address
     swap
     gtxns CloseRemainderTo
     global ZeroAddress
     ==
-    // smart_contracts/contract_main/contract.py:103-105
+    // smart_contracts/contract_main/contract.py:116-118
     // assert (
     //     pay_txn.close_remainder_to == Global.zero_address
     // ), "close remainder not allowed"
     assert // close remainder not allowed
-    // smart_contracts/contract_main/contract.py:107
+    // smart_contracts/contract_main/contract.py:120
     // self.pool_balance.value += pay_txn.amount
     intc_0 // 0
     bytec_1 // "pool_balance"
@@ -289,7 +289,7 @@ deposit_to_pool:
     bytec_1 // "pool_balance"
     swap
     app_global_put
-    // smart_contracts/contract_main/contract.py:92
+    // smart_contracts/contract_main/contract.py:105
     // @abimethod
     intc_1 // 1
     return
@@ -297,7 +297,7 @@ deposit_to_pool:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.add_expense[routing]() -> void:
 add_expense:
-    // smart_contracts/contract_main/contract.py:109
+    // smart_contracts/contract_main/contract.py:122
     // @abimethod
     txna ApplicationArgs 1
     dup
@@ -326,37 +326,39 @@ add_expense:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:112
+    // smart_contracts/contract_main/contract.py:125
     // self._assert_member(Txn.sender)
     txn Sender
     callsub _assert_member
-    // smart_contracts/contract_main/contract.py:114
+    // smart_contracts/contract_main/contract.py:127
     // assert amount > 0, "amount must be positive"
     dig 1
     assert // amount must be positive
-    // smart_contracts/contract_main/contract.py:115
+    // smart_contracts/contract_main/contract.py:128
     // assert description.bytes.length > 0, "description required"
     dup
     len
     dup
     assert // description required
-    // smart_contracts/contract_main/contract.py:117
+    // smart_contracts/contract_main/contract.py:130
     // expense_id = self.expense_count.value + UInt64(1)
     intc_0 // 0
-    bytec_3 // "expense_count"
+    bytec 5 // "expense_count"
     app_global_get_ex
     assert // check self.expense_count exists
     intc_1 // 1
     +
-    // smart_contracts/contract_main/contract.py:118
+    dup
+    cover 4
+    // smart_contracts/contract_main/contract.py:131
     // self.expense_count.value = expense_id
-    bytec_3 // "expense_count"
+    bytec 5 // "expense_count"
     dig 1
     app_global_put
-    // smart_contracts/contract_main/contract.py:121
+    // smart_contracts/contract_main/contract.py:134
     // payer=Txn.sender,
     txn Sender
-    // smart_contracts/contract_main/contract.py:120-126
+    // smart_contracts/contract_main/contract.py:133-139
     // self.expenses[expense_id] = ExpenseRecord(
     //     payer=Txn.sender,
     //     amount=amount,
@@ -375,10 +377,10 @@ add_expense:
     swap
     bytec 9 // 0x0033
     concat
-    // smart_contracts/contract_main/contract.py:124
+    // smart_contracts/contract_main/contract.py:137
     // approval_count=UInt64(1),
     intc_1 // 1
-    // smart_contracts/contract_main/contract.py:120-126
+    // smart_contracts/contract_main/contract.py:133-139
     // self.expenses[expense_id] = ExpenseRecord(
     //     payer=Txn.sender,
     //     amount=amount,
@@ -394,14 +396,16 @@ add_expense:
     concat
     uncover 2
     concat
-    // smart_contracts/contract_main/contract.py:120
+    // smart_contracts/contract_main/contract.py:133
     // self.expenses[expense_id] = ExpenseRecord(
     uncover 2
     itob
-    bytec 4 // 0x657870656e73655f
+    bytec_3 // 0x657870656e73655f
     dig 1
     concat
-    // smart_contracts/contract_main/contract.py:120-126
+    dup
+    cover 4
+    // smart_contracts/contract_main/contract.py:133-139
     // self.expenses[expense_id] = ExpenseRecord(
     //     payer=Txn.sender,
     //     amount=amount,
@@ -414,7 +418,7 @@ add_expense:
     pop
     uncover 2
     box_put
-    // smart_contracts/contract_main/contract.py:128
+    // smart_contracts/contract_main/contract.py:141
     // self.approvals[ApprovalKey(expense_id=expense_id, member=Txn.sender)] = UInt64(1)
     txn Sender
     concat
@@ -423,7 +427,29 @@ add_expense:
     concat
     swap
     box_put
-    // smart_contracts/contract_main/contract.py:109
+    // smart_contracts/contract_main/contract.py:143
+    // if self.approval_threshold.value == UInt64(1):
+    intc_0 // 0
+    bytec_2 // "approval_threshold"
+    app_global_get_ex
+    assert // check self.approval_threshold exists
+    intc_1 // 1
+    ==
+    bz add_expense_after_if_else@3
+    // smart_contracts/contract_main/contract.py:144
+    // expense = self.expenses[expense_id].copy()
+    dup
+    box_get
+    assert // check self.expenses entry exists
+    // smart_contracts/contract_main/contract.py:145
+    // self._complete_expense(expense_id, expense)
+    dig 2
+    swap
+    callsub _complete_expense
+    pop
+
+add_expense_after_if_else@3:
+    // smart_contracts/contract_main/contract.py:122
     // @abimethod
     intc_1 // 1
     return
@@ -431,7 +457,7 @@ add_expense:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.approve_expense[routing]() -> void:
 approve_expense:
-    // smart_contracts/contract_main/contract.py:130
+    // smart_contracts/contract_main/contract.py:147
     // @abimethod
     txna ApplicationArgs 1
     dup
@@ -440,6 +466,7 @@ approve_expense:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    dup
     // smart_contracts/contract_main/contract.py:48
     // creator_value, creator_exists = self.creator.maybe()
     intc_0 // 0
@@ -449,21 +476,29 @@ approve_expense:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:133
+    // smart_contracts/contract_main/contract.py:150
     // self._assert_member(Txn.sender)
     txn Sender
     callsub _assert_member
-    // smart_contracts/contract_main/contract.py:135
+    // smart_contracts/contract_main/contract.py:152
     // assert expense_id in self.expenses, "expense not found"
     itob
-    bytec 4 // 0x657870656e73655f
+    bytec_3 // 0x657870656e73655f
     dig 1
     concat
+    dup
+    cover 2
     dup
     box_len
     bury 1
     assert // expense not found
-    // smart_contracts/contract_main/contract.py:136-137
+    // smart_contracts/contract_main/contract.py:153
+    // expense = self.expenses[expense_id].copy()
+    dup
+    box_get
+    pop
+    cover 2
+    // smart_contracts/contract_main/contract.py:153-154
     // expense = self.expenses[expense_id].copy()
     // assert not expense.settled, "expense already settled"
     dup
@@ -472,17 +507,17 @@ approve_expense:
     box_extract // on error: index out of bounds
     intc_0 // 0
     getbit
-    // smart_contracts/contract_main/contract.py:137
+    // smart_contracts/contract_main/contract.py:154
     // assert not expense.settled, "expense already settled"
     !
     assert // expense already settled
-    // smart_contracts/contract_main/contract.py:139
+    // smart_contracts/contract_main/contract.py:156
     // approval_key = ApprovalKey(expense_id=expense_id, member=Txn.sender)
     txn Sender
     uncover 2
     swap
     concat
-    // smart_contracts/contract_main/contract.py:140
+    // smart_contracts/contract_main/contract.py:157
     // approval_result = self.approvals.maybe(approval_key)
     bytec 10 // 0x617070726f76616c5f
     swap
@@ -490,18 +525,17 @@ approve_expense:
     dup
     box_len
     bury 1
-    // smart_contracts/contract_main/contract.py:142
+    // smart_contracts/contract_main/contract.py:159
     // assert not already_approved, "already approved"
     !
     assert // already approved
-    // smart_contracts/contract_main/contract.py:144
+    // smart_contracts/contract_main/contract.py:161
     // self.approvals[approval_key] = UInt64(1)
     intc_1 // 1
     itob
     box_put
-    // smart_contracts/contract_main/contract.py:145
+    // smart_contracts/contract_main/contract.py:162
     // expense.approval_count += 1
-    dup
     pushint 42
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -509,21 +543,46 @@ approve_expense:
     intc_1 // 1
     +
     itob
-    // smart_contracts/contract_main/contract.py:145-146
-    // expense.approval_count += 1
-    // self.expenses[expense_id] = expense.copy()
+    dup
+    cover 2
+    replace2 42
+    dup
+    // smart_contracts/contract_main/contract.py:164
+    // if expense.approval_count >= self.approval_threshold.value:
     pushint 42
-    swap
-    box_replace // on error: index out of bounds
-    // smart_contracts/contract_main/contract.py:130
+    extract_uint64
+    intc_0 // 0
+    bytec_2 // "approval_threshold"
+    app_global_get_ex
+    assert // check self.approval_threshold exists
+    >=
+    bz approve_expense_else_body@3
+    // smart_contracts/contract_main/contract.py:165
+    // self._complete_expense(expense_id, expense)
+    dig 3
+    dig 1
+    callsub _complete_expense
+    pop
+
+approve_expense_after_if_else@4:
+    // smart_contracts/contract_main/contract.py:147
     // @abimethod
     intc_1 // 1
     return
 
+approve_expense_else_body@3:
+    // smart_contracts/contract_main/contract.py:162
+    // expense.approval_count += 1
+    dig 2
+    pushint 42
+    dig 3
+    box_replace // on error: index out of bounds
+    b approve_expense_after_if_else@4
+
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.settle_expense[routing]() -> void:
 settle_expense:
-    // smart_contracts/contract_main/contract.py:148
+    // smart_contracts/contract_main/contract.py:169
     // @abimethod
     txna ApplicationArgs 1
     dup
@@ -541,101 +600,30 @@ settle_expense:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:151
+    // smart_contracts/contract_main/contract.py:172
     // self._assert_member(Txn.sender)
     txn Sender
     callsub _assert_member
-    // smart_contracts/contract_main/contract.py:153
+    // smart_contracts/contract_main/contract.py:174
     // assert expense_id in self.expenses, "expense not found"
+    dup
     itob
-    bytec 4 // 0x657870656e73655f
+    bytec_3 // 0x657870656e73655f
     swap
     concat
     dup
     box_len
     bury 1
     assert // expense not found
-    // smart_contracts/contract_main/contract.py:154-155
+    // smart_contracts/contract_main/contract.py:175
     // expense = self.expenses[expense_id].copy()
-    // assert not expense.settled, "expense already settled"
-    dup
-    pushint 50
-    intc_1 // 1
-    box_extract // on error: index out of bounds
-    dup
-    intc_0 // 0
-    getbit
-    // smart_contracts/contract_main/contract.py:155
-    // assert not expense.settled, "expense already settled"
-    !
-    assert // expense already settled
-    // smart_contracts/contract_main/contract.py:157
-    // expense.approval_count >= self.approval_threshold.value
-    dig 1
-    pushint 42
-    intc_2 // 8
-    box_extract // on error: index out of bounds
-    btoi
-    intc_0 // 0
-    bytec 6 // "approval_threshold"
-    app_global_get_ex
-    assert // check self.approval_threshold exists
-    >=
-    // smart_contracts/contract_main/contract.py:156-158
-    // assert (
-    //     expense.approval_count >= self.approval_threshold.value
-    // ), "insufficient approvals"
-    assert // insufficient approvals
-    // smart_contracts/contract_main/contract.py:159
-    // assert self.pool_balance.value >= expense.amount, "insufficient pool balance"
-    intc_0 // 0
-    bytec_1 // "pool_balance"
-    app_global_get_ex
-    assert // check self.pool_balance exists
-    dig 2
-    intc_3 // 32
-    intc_2 // 8
-    box_extract // on error: index out of bounds
-    btoi
-    dup2
-    >=
-    assert // insufficient pool balance
-    // smart_contracts/contract_main/contract.py:161
-    // itxn.Payment(amount=expense.amount, receiver=expense.payer, fee=0).submit()
-    itxn_begin
-    dig 3
-    intc_0 // 0
-    intc_3 // 32
-    box_extract // on error: index out of bounds
-    itxn_field Receiver
-    dup
-    itxn_field Amount
-    intc_1 // pay
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    // smart_contracts/contract_main/contract.py:163
-    // self.pool_balance.value -= expense.amount
-    -
-    bytec_1 // "pool_balance"
-    swap
-    app_global_put
-    // smart_contracts/contract_main/contract.py:164-165
-    // expense.settled = True
-    // self.expenses[expense_id] = expense.copy()
-    intc_0 // 0
-    // smart_contracts/contract_main/contract.py:164
-    // expense.settled = True
-    intc_1 // 1
-    // smart_contracts/contract_main/contract.py:164-165
-    // expense.settled = True
-    // self.expenses[expense_id] = expense.copy()
-    setbit
-    pushint 50
-    swap
-    box_replace // on error: index out of bounds
-    // smart_contracts/contract_main/contract.py:148
+    box_get
+    pop
+    // smart_contracts/contract_main/contract.py:176
+    // self._complete_expense(expense_id, expense)
+    callsub _complete_expense
+    pop
+    // smart_contracts/contract_main/contract.py:169
     // @abimethod
     intc_1 // 1
     return
@@ -652,37 +640,37 @@ get_group_info:
     // smart_contracts/contract_main/contract.py:49
     // assert creator_exists, "group not initialized"
     assert // group not initialized
-    // smart_contracts/contract_main/contract.py:171
+    // smart_contracts/contract_main/contract.py:182
     // self.group_name.value,
     intc_0 // 0
     bytec 7 // "group_name"
     app_global_get_ex
     assert // check self.group_name exists
-    // smart_contracts/contract_main/contract.py:172
+    // smart_contracts/contract_main/contract.py:183
     // self.member_count.value,
     intc_0 // 0
-    bytec_2 // "member_count"
+    bytec 4 // "member_count"
     app_global_get_ex
     assert // check self.member_count exists
-    // smart_contracts/contract_main/contract.py:173
+    // smart_contracts/contract_main/contract.py:184
     // self.approval_threshold.value,
     intc_0 // 0
-    bytec 6 // "approval_threshold"
+    bytec_2 // "approval_threshold"
     app_global_get_ex
     assert // check self.approval_threshold exists
-    // smart_contracts/contract_main/contract.py:174
+    // smart_contracts/contract_main/contract.py:185
     // self.pool_balance.value,
     intc_0 // 0
     bytec_1 // "pool_balance"
     app_global_get_ex
     assert // check self.pool_balance exists
-    // smart_contracts/contract_main/contract.py:175
+    // smart_contracts/contract_main/contract.py:186
     // self.expense_count.value,
     intc_0 // 0
-    bytec_3 // "expense_count"
+    bytec 5 // "expense_count"
     app_global_get_ex
     assert // check self.expense_count exists
-    // smart_contracts/contract_main/contract.py:167
+    // smart_contracts/contract_main/contract.py:178
     // @abimethod(readonly=True)
     dig 4
     len
@@ -716,7 +704,7 @@ get_group_info:
 
 // smart_contracts.contract_main.contract.ExpensePoolContract.get_expense_info[routing]() -> void:
 get_expense_info:
-    // smart_contracts/contract_main/contract.py:178
+    // smart_contracts/contract_main/contract.py:189
     // @abimethod(readonly=True)
     txna ApplicationArgs 1
     dup
@@ -725,30 +713,30 @@ get_expense_info:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/contract_main/contract.py:182
+    // smart_contracts/contract_main/contract.py:193
     // assert expense_id in self.expenses, "expense not found"
     itob
-    bytec 4 // 0x657870656e73655f
+    bytec_3 // 0x657870656e73655f
     swap
     concat
     dup
     box_len
     bury 1
     assert // expense not found
-    // smart_contracts/contract_main/contract.py:185
+    // smart_contracts/contract_main/contract.py:196
     // arc4.Address(expense.payer),
     dup
     intc_0 // 0
     intc_3 // 32
     box_extract // on error: index out of bounds
-    // smart_contracts/contract_main/contract.py:186
+    // smart_contracts/contract_main/contract.py:197
     // expense.amount,
     dig 1
     intc_3 // 32
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    // smart_contracts/contract_main/contract.py:187
+    // smart_contracts/contract_main/contract.py:198
     // expense.description,
     dig 2
     pushints 51 2
@@ -761,14 +749,14 @@ get_expense_info:
     uncover 2
     box_extract
     extract 2 0
-    // smart_contracts/contract_main/contract.py:188
+    // smart_contracts/contract_main/contract.py:199
     // expense.approval_count,
     dig 3
     pushint 42
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    // smart_contracts/contract_main/contract.py:189
+    // smart_contracts/contract_main/contract.py:200
     // expense.settled,
     uncover 4
     pushint 50
@@ -776,7 +764,7 @@ get_expense_info:
     box_extract // on error: index out of bounds
     intc_0 // 0
     getbit
-    // smart_contracts/contract_main/contract.py:178
+    // smart_contracts/contract_main/contract.py:189
     // @abimethod(readonly=True)
     uncover 3
     itob
@@ -818,7 +806,7 @@ _assert_member:
     // smart_contracts/contract_main/contract.py:52
     // assert self.members_initialized.value == UInt64(1), "members not initialized"
     intc_0 // 0
-    bytec 5 // "members_initialized"
+    bytec 6 // "members_initialized"
     app_global_get_ex
     assert // check self.members_initialized exists
     intc_1 // 1
@@ -832,4 +820,85 @@ _assert_member:
     box_len
     bury 1
     assert // only members can call
+    retsub
+
+
+// smart_contracts.contract_main.contract.ExpensePoolContract._complete_expense(expense_id: uint64, expense: bytes) -> bytes:
+_complete_expense:
+    // smart_contracts/contract_main/contract.py:55
+    // def _complete_expense(self, expense_id: UInt64, expense: ExpenseRecord) -> None:
+    proto 2 1
+    // smart_contracts/contract_main/contract.py:56
+    // assert not expense.settled, "expense already settled"
+    frame_dig -1
+    pushint 400
+    getbit
+    !
+    assert // expense already settled
+    // smart_contracts/contract_main/contract.py:58
+    // expense.approval_count >= self.approval_threshold.value
+    frame_dig -1
+    pushint 42
+    extract_uint64
+    intc_0 // 0
+    bytec_2 // "approval_threshold"
+    app_global_get_ex
+    assert // check self.approval_threshold exists
+    >=
+    // smart_contracts/contract_main/contract.py:57-59
+    // assert (
+    //     expense.approval_count >= self.approval_threshold.value
+    // ), "insufficient approvals"
+    assert // insufficient approvals
+    // smart_contracts/contract_main/contract.py:60
+    // assert self.pool_balance.value >= expense.amount, "insufficient pool balance"
+    intc_0 // 0
+    bytec_1 // "pool_balance"
+    app_global_get_ex
+    assert // check self.pool_balance exists
+    frame_dig -1
+    intc_3 // 32
+    extract_uint64
+    dup2
+    >=
+    assert // insufficient pool balance
+    // smart_contracts/contract_main/contract.py:62
+    // itxn.Payment(amount=expense.amount, receiver=expense.payer, fee=0).submit()
+    itxn_begin
+    frame_dig -1
+    extract 0 32
+    itxn_field Receiver
+    dup
+    itxn_field Amount
+    intc_1 // pay
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/contract_main/contract.py:64
+    // self.pool_balance.value -= expense.amount
+    -
+    bytec_1 // "pool_balance"
+    swap
+    app_global_put
+    // smart_contracts/contract_main/contract.py:65
+    // expense.settled = True
+    frame_dig -1
+    pushint 400
+    intc_1 // 1
+    setbit
+    frame_bury -1
+    // smart_contracts/contract_main/contract.py:66
+    // self.expenses[expense_id] = expense.copy()
+    frame_dig -2
+    itob
+    bytec_3 // 0x657870656e73655f
+    swap
+    concat
+    dup
+    box_del
+    pop
+    frame_dig -1
+    box_put
+    frame_dig -1
     retsub

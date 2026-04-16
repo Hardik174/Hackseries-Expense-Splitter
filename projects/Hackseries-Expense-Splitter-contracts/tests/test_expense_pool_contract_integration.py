@@ -178,11 +178,12 @@ def test_full_happy_path_create_deposit_add_approve_settle(localnet_setup):
         send_params=_send_params(),
     )
 
-    app_client.send.settle_expense(
-        args=SettleExpenseArgs(expense_id=1),
-        params=_settle_params(creator),
-        send_params=_send_params(),
-    )
+    # Settlement will happen automatically on approval threshold
+    # app_client.send.settle_expense(
+    #     args=SettleExpenseArgs(expense_id=1),
+    #     params=_settle_params(creator),
+    #     send_params=_send_params(),
+    # )
 
     group_info = app_client.send.get_group_info(
         send_params=_send_params()
@@ -244,11 +245,12 @@ def test_two_member_threshold_flow(localnet_setup):
         send_params=_send_params(),
     )
 
-    app_client.send.settle_expense(
-        args=SettleExpenseArgs(expense_id=1),
-        params=_settle_params(creator),
-        send_params=_send_params(),
-    )
+    # Settlement will happen automatically on approval threshold
+    # app_client.send.settle_expense(
+    #     args=SettleExpenseArgs(expense_id=1),
+    #     params=_settle_params(creator),
+    #     send_params=_send_params(),
+    # )
 
     expense_state = app_client.state.box.expenses.get_value(1)
     global_state = app_client.state.global_state
@@ -437,11 +439,12 @@ def test_cannot_double_settle_same_expense(localnet_setup):
         send_params=_send_params(),
     )
 
-    app_client.send.settle_expense(
-        args=SettleExpenseArgs(expense_id=1),
-        params=_settle_params(creator),
-        send_params=_send_params(),
-    )
+    # Settlement will happen automatically on approval threshold
+    # app_client.send.settle_expense(
+    #     args=SettleExpenseArgs(expense_id=1),
+    #     params=_settle_params(creator),
+    #     send_params=_send_params(),
+    # )
 
     expense_state = app_client.state.box.expenses.get_value(1)
     global_state = app_client.state.global_state

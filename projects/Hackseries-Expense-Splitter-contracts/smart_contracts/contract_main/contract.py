@@ -52,6 +52,19 @@ class ExpensePoolContract(ARC4Contract):
         assert self.members_initialized.value == UInt64(1), "members not initialized"
         assert account in self.members, "only members can call"
 
+    def _complete_expense(self, expense_id: UInt64, expense: ExpenseRecord) -> None:
+        assert not expense.settled, "expense already settled"
+        assert (
+            expense.approval_count >= self.approval_threshold.value
+        ), "insufficient approvals"
+        assert self.pool_balance.value >= expense.amount, "insufficient pool balance"
+
+        itxn.Payment(amount=expense.amount, receiver=expense.payer, fee=0).submit()
+
+        self.pool_balance.value -= expense.amount
+        expense.settled = True
+        self.expenses[expense_id] = expense.copy()
+
     @abimethod(create="require")
     def create_group(
         self,
@@ -127,6 +140,10 @@ class ExpensePoolContract(ARC4Contract):
 
         self.approvals[ApprovalKey(expense_id=expense_id, member=Txn.sender)] = UInt64(1)
 
+        if self.approval_threshold.value == UInt64(1):
+            expense = self.expenses[expense_id].copy()
+            self._complete_expense(expense_id, expense)
+
     @abimethod
     def approve_expense(self, expense_id: UInt64) -> None:
         self._assert_group_initialized()
@@ -143,7 +160,11 @@ class ExpensePoolContract(ARC4Contract):
 
         self.approvals[approval_key] = UInt64(1)
         expense.approval_count += 1
-        self.expenses[expense_id] = expense.copy()
+
+        if expense.approval_count >= self.approval_threshold.value:
+            self._complete_expense(expense_id, expense)
+        else:
+            self.expenses[expense_id] = expense.copy()
 
     @abimethod
     def settle_expense(self, expense_id: UInt64) -> None:
@@ -152,17 +173,7 @@ class ExpensePoolContract(ARC4Contract):
 
         assert expense_id in self.expenses, "expense not found"
         expense = self.expenses[expense_id].copy()
-        assert not expense.settled, "expense already settled"
-        assert (
-            expense.approval_count >= self.approval_threshold.value
-        ), "insufficient approvals"
-        assert self.pool_balance.value >= expense.amount, "insufficient pool balance"
-
-        itxn.Payment(amount=expense.amount, receiver=expense.payer, fee=0).submit()
-
-        self.pool_balance.value -= expense.amount
-        expense.settled = True
-        self.expenses[expense_id] = expense.copy()
+        self._complete_expense(expense_id, expense)
 
     @abimethod(readonly=True)
     def get_group_info(self) -> tuple[String, UInt64, UInt64, UInt64, UInt64]:

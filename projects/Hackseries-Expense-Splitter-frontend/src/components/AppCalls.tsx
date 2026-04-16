@@ -410,9 +410,11 @@ const AppCalls = ({ openModal, setModalState }: AppCallsInterface) => {
                 Approve Expense
               </button>
               <button type="button" className="btn btn-warning" onClick={settleExpense}>
-                Settle Expense
+                Finalize Expense
               </button>
             </div>
+
+            <p className="helper-text">Once approvals reach the threshold, the expense finalizes automatically and the pool balance is updated.</p>
           </div>
 
           {/* Right Column: Info Display */}
